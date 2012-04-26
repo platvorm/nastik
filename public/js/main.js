@@ -236,7 +236,7 @@ $(function() {
 
 	// geo
 	var gpswatch = null;
-	var locations = new Array;
+	var locations = new Array();
 	var dot_radius = 3;
 	
 	// temp
@@ -252,7 +252,7 @@ $(function() {
 			return false;
 		}
 		
-		gpswatch = navigator.geolocation.watchPosition(getpos, geterror, {
+		gpswatch = navigator.geolocation.watchPosition(gpsNewPosition, gpsError, {
 			maximumAge: 0,
 			timeout: 10000,
 			enableHighAccuracy: true
@@ -262,12 +262,15 @@ $(function() {
 		
 	};
 	
-	var getpos = function(position) {
+	var gpsNewPosition = function(position) {
 	
 		var lat = parseFloat(position.coords.latitude.toFixed(5)),
-			lng = parseFloat(position.coords.longitude.toFixed(5))
+			lng = parseFloat(position.coords.longitude.toFixed(5));
 		
 		if (locations.length > 0) {
+            // var selfId = client.selfId();
+            // console.log(clientsData);
+            // var last_location = clientsData[client.selfId()][locations][locations.length - 1];
 			var last_location = locations[locations.length - 1];
 			distance = distance(last_location.lat, last_location.lng, lat, lng);
 			
@@ -285,9 +288,9 @@ $(function() {
 		
 		console.log("locations: " + locations);
 		console.log("locations.length: " + locations.length);
-	}
+	};
 
-	var geterror = function(error) {
+	var gpsError = function(error) {
 		if (error.code==1) {
 			alert("User denied geolocation.");
 		}
@@ -298,8 +301,8 @@ $(function() {
 			alert("Timeout expired.");
 		}
 		else {
-			alert("ERROR:"+ err.message);
+			alert("ERROR:"+ error.message);
 		}
-	}
+	};
 		
 });
