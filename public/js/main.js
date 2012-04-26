@@ -219,11 +219,11 @@ $(function() {
 	
 	// GPS SECTION
 		
-	var distance = function(lat1, lng1, lat2, lng2) {
-		var lat1 = parseFloat(lat1),
-			lng1 = parseFloat(lng1),
-			lat2 = parseFloat(lat2),
-			lng2 = parseFloat(lng2);
+	var distanceBetweenPoints = function(lat1_temp, lng1_temp, lat2_temp, lng2_temp) {
+		var lat1 = parseFloat(lat1_temp),
+			lng1 = parseFloat(lng1_temp),
+			lat2 = parseFloat(lat2_temp),
+			lng2 = parseFloat(lng2_temp);
 		
 		var R = 6371 * 1000;						// Radius of the earth in km * 1000
 		var dLat = (lat2-lat1) * Math.PI / 180;		// to rad
@@ -271,10 +271,11 @@ $(function() {
             // var selfId = client.selfId();
             // console.log(clientsData);
             // var last_location = clientsData[client.selfId()][locations][locations.length - 1];
-			var last_location = locations[locations.length - 1];
-			distance = distance(last_location.lat, last_location.lng, lat, lng);
 			
-			console.log(distance);
+			var last_location = locations[locations.length - 1];
+			var distance = distanceBetweenPoints(last_location.lat, last_location.lng, lat, lng);
+			
+			console.log("distance: " + distance);
 			
 			if (distance >= dot_radius * 2) {
 				locations.push({
