@@ -22,6 +22,7 @@ $(function() {
 		.appendTo('body');
 
 	var treatsData = [];
+	var currentGameSite = {};
 	
 	var client = (function() {
 		var connected = false;
@@ -59,7 +60,7 @@ $(function() {
 						throw err;
 					}
 					
-					console.log(message);
+					if (message.command) console.log('new message received: ' + message.command, message);
 					
 					if (message.command && message.data && typeof handlers[message.command] === 'function') {
 						handlers[message.command](message.data);
@@ -211,7 +212,7 @@ $(function() {
 			clientsData[data.id].locations = data.locations;
 			draw();
 		},
-		'client.treats.updated': function(data) {
+		'treats.updated': function(data) {
 			if (!data.treatsData) return false;			
 			
 			treatsData = data.treatsData;
@@ -220,6 +221,9 @@ $(function() {
 			console.log(treatsData);
 			
 			draw();
+		},
+		'current.game.site': function(data) {
+			currentGameSite = data;
 		}
 	};
 	
@@ -253,8 +257,8 @@ $(function() {
 	
 	var map = $('<canvas>')
 		.attr('id', 'map')
-		.attr('width', map_wrap.height())
-		.attr('height', map_wrap.height())
+		.attr('width', map_wrap[map_wrap.height() < map_wrap.width() ? 'height' : 'width']())
+		.attr('height', map_wrap[map_wrap.height() < map_wrap.width() ? 'height' : 'width']())
 		.css({
 			position: 'absolute',
 			top: 0,
@@ -266,31 +270,7 @@ $(function() {
 	var ctx = canvas.getContext("2d");
 	
 	var getGameSite = function() {
-		
-		var currentGameSite = 'rävala';
-		
-		var gameSites = {
-			'vabaduse': {
-				top: 59.43420,
-				bottom: 59.43340,
-				left: 24.74365,
-				right: 24.74525
-			},
-			'linda': {
-				top: 59.44345,
-				bottom: 59.44265,
-				left: 24.73060,
-				right: 24.73220
-			},
-			'rävala': {
-				top: 59.43463,
-				bottom: 59.43383,
-				left: 24.75435,
-				right: 24.75515
-			}
-		};
-		
-		return gameSites[currentGameSite];
+		return currentGameSite;
 	}
 	
 	var dot_radius = canvas.width / 29.6;

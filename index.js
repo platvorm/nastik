@@ -62,19 +62,49 @@ var getRandomNumberBetween = function(lo, hi) {
 
 var treatsData = [];
 
+
+var getGameSite = function() {
+	
+	var currentGameSite = 'rävala';
+	
+	var gameSites = {
+		'vabaduse': {
+			top: 59.43420,
+			bottom: 59.43340,
+			left: 24.74365,
+			right: 24.74525
+		},
+		'linda': {
+			top: 59.44345,
+			bottom: 59.44265,
+			left: 24.73060,
+			right: 24.73220
+		},
+		'rävala': {
+			top: 59.43463,
+			bottom: 59.43383,
+			left: 24.75435,
+			right: 24.75515
+		},
+		'rävala2': {
+			top: 59.43445,
+			bottom: 59.43335,
+			left: 24.75350,
+			right: 24.75430
+		}
+	};
+	
+	return gameSites[currentGameSite];
+}
+
+
 var generateTreats = function() {
 	var numberOfTreats = 3;
 	
-	// rävala
-	var ext_top = 59.43400,
-		ext_bottom = 59.43320,
-		ext_left = 	24.75435,
-		ext_right = 24.75515;
-	
 	while (treatsData.length < numberOfTreats) {
 		treatsData.push({
-			'lat': getRandomNumberBetween(ext_bottom, ext_top),
-			'lng': getRandomNumberBetween(ext_left, ext_right)
+			'lat': getRandomNumberBetween(getGameSite().bottom, getGameSite().top),
+			'lng': getRandomNumberBetween(getGameSite().left, getGameSite().right)
 		});
 	}
 	
@@ -105,6 +135,13 @@ server.on('connection', function (client) {
 		command: 'current.connected.clients',
 		data: {
 			clients: clientsData
+		}
+	});
+	
+	sendData(client, {
+		command: 'current.game.site',
+		data: {
+			site: getGameSite()
 		}
 	});
 	
@@ -229,7 +266,7 @@ var handlers = {
 	},
 	'get.treats': function(data) {
 		publishToAll({
-			command: 'client.treats.updated',
+			command: 'treats.updated',
 			data: {
 				treatsData: treatsData
 			}
@@ -288,6 +325,12 @@ var areCollided = function(id, lat, lng) {
 			// gen new
 			generateTreats();
 			
+		}
+	}
+	
+};
+
+	
 		}
 	}
 	
