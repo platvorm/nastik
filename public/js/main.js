@@ -1,24 +1,33 @@
 $(function() {
 
-	var appName = 'Uss';
+	var appName = 'nastik alfa';
 
 	document.title = appName;
 
+	// ylesehitus
+	var header = $('<div>')
+		.addClass('header')
+		.appendTo('body');
+
+	var appTitleElement = $('<h1>')
+		.text(appName)
+		.appendTo(header);
+	
+	var nameForm = $('<div>')
+		.appendTo('body')
+		.addClass('name-form');
+	
 	var globalLoadingElement = $('<div>')
 		.addClass('global-loader')
-		.appendTo('body')
-		.activity();
-
-	var appContainer = $('<div>')
-		.addClass('app-container')
-		.html('Your app will be here. <small>To get started, open this URL in another browser tab.</small>')
 		.appendTo('body');
+
+	var treatsData = [];
 	
 	var client = (function() {
 		var connected = false;
 		var selfId = false;
 		
-		var reconnectTimeout = 1 * 1000; // 1 sec
+		var reconnectTimeout = 3000;
 		var reconnectingInterval = false;
 
 		var socket = false;
@@ -105,7 +114,7 @@ $(function() {
 
 	var connectedUsersCounter = $('<span>')
 		.addClass('connected-users-counter')
-		.appendTo(connectedClientsContainerHeader)
+		.appendTo(appTitleElement)
 		.text(0);
 	
 	var updateClientsCount = function() {
@@ -118,7 +127,17 @@ $(function() {
 
 	var onConnect = function() {
 		// do smth when connected
-		gpswatch_start();
+		gpsWatchStart();
+		
+		// start with level 1
+		clientsData[client.selfId()] = {
+			'level': 1
+		};
+		
+		client.send('update.level', { 'level': clientsData[client.selfId()].level });
+		
+		// get treats
+		client.send('get.treats', {});
 		
 		globalLoadingElement.detach();
 		connectedClientsContainerHeader.appendTo(connectedClientsContainer);
@@ -181,24 +200,28 @@ $(function() {
 				constructClientNameElement(data);
 			}
 		},
+		'client.level.updated': function(data) {
+			if (!clientsData[data.id]) return false;
+
+			clientsData[data.id].level = data.level;
+		},
 		'client.locations.updated': function(data) {
 			if (!clientsData[data.id]) return false;
-			clientsData[data.id].locations = locations;
+
+			clientsData[data.id].locations = data.locations;
+			draw();
+		},
+		'client.treats.updated': function(data) {
+			if (!data.treatsData) return false;			
+			
+			treatsData = data.treatsData;
+			
+			console.log("!!!3");
+			console.log(treatsData);
+			
+			draw();
 		}
 	};
-	
-	// ylesehitus
-	var header = $('<div>')
-		.addClass('header')
-		.appendTo('body');
-
-	var appTitleElement = $('<h1>')
-		.text(appName)
-		.appendTo(header);
-	
-	var nameForm = $('<div>')
-		.appendTo('body')
-		.addClass('name-form');
 	
 	var updateNameHandler = function(e) {
 		client.send('update.name', { name: nameInput.val() });
@@ -215,7 +238,63 @@ $(function() {
 	
 	var locations = $('<div>')
 		.appendTo('body')
-		.addClass('locations');	
+		.addClass('locations');
+	
+	var map_wrap = $('<div>')
+		.css({
+			position: 'fixed',
+			top: '48px',
+			left: '0',
+			right: '0',
+			bottom: '0'
+		})
+		.addClass('map-wrapper')
+		.appendTo('body');
+	
+	var map = $('<canvas>')
+		.attr('id', 'map')
+		.attr('width', map_wrap.height())
+		.attr('height', map_wrap.height())
+		.css({
+			position: 'absolute',
+			top: 0,
+			bottom: 0
+		})
+		.appendTo(map_wrap);
+	
+	var canvas = document.getElementById("map"); 
+	var ctx = canvas.getContext("2d");
+	
+	var getGameSite = function() {
+		
+		var currentGameSite = 'rävala';
+		
+		var gameSites = {
+			'vabaduse': {
+				top: 59.43420,
+				bottom: 59.43340,
+				left: 24.74365,
+				right: 24.74525
+			},
+			'linda': {
+				top: 59.44345,
+				bottom: 59.44265,
+				left: 24.73060,
+				right: 24.73220
+			},
+			'rävala': {
+				top: 59.43463,
+				bottom: 59.43383,
+				left: 24.75435,
+				right: 24.75515
+			}
+		};
+		
+		return gameSites[currentGameSite];
+	}
+	
+	var dot_radius = canvas.width / 29.6;
+
 	
 	// GPS SECTION
 		
@@ -236,19 +315,12 @@ $(function() {
 
 	// geo
 	var gpswatch = null;
-	var locations = new Array();
-	var dot_radius = 3;
+	// var dot_radius = 3;
 	
-	// temp
-	locations.push({
-		'lat': 59.44314,
-		'lng': 24.73192
-	});
-	
-	var gpswatch_start = function(e) {
+	var gpsWatchStart = function(e) {
 		
 		if (!navigator.geolocation) {
-			console.log('Device has no geolocation support.');
+			alert('Device has no geolocation support.');
 			return false;
 		}
 		
@@ -263,32 +335,53 @@ $(function() {
 	};
 	
 	var gpsNewPosition = function(position) {
-	
+		
 		var lat = parseFloat(position.coords.latitude.toFixed(5)),
 			lng = parseFloat(position.coords.longitude.toFixed(5));
 		
+		console.log("location" + lat + ", " + lng);
+		
+		// if (typeof clientsData[client.selfId()].locations === 'undefined') clientsData[client.selfId()].locations = [];
+		
+		if (typeof clientsData[client.selfId()].locations === 'undefined') {
+			clientsData[client.selfId()] = {
+				'locations': []
+			};
+		}
+		
+   		var locations = clientsData[client.selfId()].locations;
+   		
+   		console.log("new position: " + lat + ", " + lng);
+		console.log("locations: " + locations);
+		console.log("locations: " + clientsData[client.selfId()].locations);
+		console.log("locations.length: " + locations.length);
+		
 		if (locations.length > 0) {
-            // var selfId = client.selfId();
-            // console.log(clientsData);
-            // var last_location = clientsData[client.selfId()][locations][locations.length - 1];
-			
 			var last_location = locations[locations.length - 1];
 			var distance = distanceBetweenPoints(last_location.lat, last_location.lng, lat, lng);
 			
-			console.log("distance: " + distance);
+			console.log("distance from previous: " + distance);
 			
 			if (distance >= dot_radius * 2) {
+			// if (distance) {
 				locations.push({
 					'lat': lat,
 					'lng': lng
 				});
-
+				
 				client.send('update.locations', { locations: locations });
 			}
 		}
+		else {
+			client.send('update.locations', { locations: [{'lat': lat, 'lng': lng}] });
+		}
+		locations.push({
+			'lat': lat,
+			'lng': lng
+		});
 		
-		console.log("locations: " + locations);
-		console.log("locations.length: " + locations.length);
+		client.send('update.locations', { locations: locations });
+		
 	};
 
 	var gpsError = function(error) {
@@ -306,4 +399,73 @@ $(function() {
 		}
 	};
 		
+	var draw = function() {		
+		console.log("draw");
+
+		var map_range = function(value, low1, high1, low2, high2) {
+    		return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+		};
+		
+		// CLS
+		ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+		// these are treats
+		if (treatsData) {
+			console.log('draw treats:');
+			console.log(treatsData);
+					
+			for (i in treatsData) {
+				console.log("here! " + treatsData[i]);
+				
+				var xpos = map_range(treatsData[i].lng, getGameSite().left, getGameSite().right, canvas.width, 0);
+				var ypos = map_range(treatsData[i].lat, getGameSite().bottom, getGameSite().top, canvas.height, 0);
+				
+				console.log("treats pos: " + xpos + " " + ypos);
+			
+				ctx.fillStyle = "#fff";
+				ctx.fillRect(xpos - dot_radius, ypos - dot_radius, dot_radius * 2, dot_radius * 2);
+
+			}
+		}
+		
+		
+		var drawSnake = function(clientToDraw, colorToDraw) {
+			for (var i = 1; i <= clientToDraw.level; i++) {
+				
+				var o_lat = clientToDraw.locations[clientToDraw.locations.length - i].lat;
+				var o_lng = clientToDraw.locations[clientToDraw.locations.length - i].lng;
+				
+				var xpos = map_range(o_lng, getGameSite().left, getGameSite().right, canvas.width, 0);
+				var ypos = map_range(o_lat, getGameSite().bottom, getGameSite().top, canvas.height, 0);
+				
+				console.log('client ' + clientToDraw.id + ' position: ' + xpos + ", " + ypos);
+				
+				ctx.fillStyle = colorToDraw;
+				ctx.beginPath();
+				ctx.arc(xpos, ypos, dot_radius, (Math.PI / 180) * 0, (Math.PI / 180) * 360, true);  
+				ctx.fill();
+			}
+		};
+		
+		for (property in clientsData) {
+			if (clientsData.hasOwnProperty(property)) {
+				
+				(function(currentClient) {
+					
+					if (!currentClient.locations || !currentClient.level) return false;
+					
+					if (currentClient.id === client.selfId()) {
+						// draw me:
+						drawSnake(currentClient, '#f6ec53');
+					}
+					else {
+						// draw enemy:
+						drawSnake(currentClient, '#b9232e');
+					}
+					
+				})(clientsData[property]);
+				
+			}
+		}
+	}
 });
