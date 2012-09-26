@@ -240,6 +240,11 @@ $(function() {
 		},
 		'current.game.site': function(data) {
 			currentGameSite = data.site;
+		},
+		'clients.collided': function(data) {
+			if (data.collidingClient == client.selfId()) {
+				alert('BOOM! You just crashed!');
+			}
 		}
 	};
 	
@@ -311,33 +316,23 @@ $(function() {
    		console.log("my location: " + newLocation[0] + ", " + newLocation[1]);
 		
 		if (clientsData[client.selfId()].locations.length > 0) {
+			var previousLocation = _.last(clientsData[client.selfId()].locations);
 			
-			// DISTANCE CHECK
-			var newLocationCoord = new L.LatLng(newLocation[0], newLocation[1]);
+			var newLocationObject = new L.LatLng(newLocation[0], newLocation[1]);
+			var previousLocationObject = new L.LatLng(previousLocation[0], previousLocation[1]);
 			
-/*
-			var pLocation = new L.LatLng(
-				clientsData[client.selfId()].locations[clientsData[client.selfId()].locations.length - 1][0],
-				clientsData[client.selfId()].locations[clientsData[client.selfId()].locations.length - 1][1]
-			);
-*/
+			console.log('distance is ' + newLocationObject.distanceTo(previousLocationObject));
 			
-		 	// var pLocation = clientsData[client.selfId()].locations[clientsData[client.selfId()].locations.length - 1];
-		 	
-		 	console.log(newLocationCoord);
-		 	console.log('distance moved: ' + newLocationCoord.distanceTo(pLocation))
-		 	
-/*
-		 	if (newLocation.distanceTo(pLocation) < 3 || newLocation.distanceTo(pLocation) > 60) {
-		 		clientsData[client.selfId()].locations.push(newLocation);
-		 	}
-*/
-			// TEMP
-			clientsData[client.selfId()].locations.push(newLocation);
+			if (newLocationObject.distanceTo(previousLocationObject) >= 3 && newLocationObject.distanceTo(previousLocationObject) <= 60) {
+				clientsData[client.selfId()].locations.push(newLocation);
+			}
 		}
 		 else {
 			clientsData[client.selfId()].locations.push(newLocation);
 		}
+		
+		console.log('my locations');
+		console.log(clientsData[client.selfId()].locations);
 		
 		// score reflects player's length
 		while (clientsData[client.selfId()].locations.length > clientsData[client.selfId()].level) {
@@ -346,6 +341,8 @@ $(function() {
 		
 		// tell everyone
 		client.send('update.locations', { locations: clientsData[client.selfId()].locations });
+	
+		draw();
 
 	};
 
@@ -383,119 +380,113 @@ $(function() {
 		playerVisual.clearLayers();
 		othersVisual.clearLayers();
 		
-		for (property in clientsData) {
-			if (clientsData.hasOwnProperty(property)) {
-				
-				(function(currentClient) {
+		_.each(clientsData, function(currentClient) {
 					
-					if (!currentClient.locations) return false;
+			if (!currentClient.locations) return false;
 
-					if (currentClient.id === client.selfId()) {
+			if (currentClient.id === client.selfId()) {
+			
+				// DRAW YOURSELF
+				if (currentClient.locations.length > 1) {
+					// draw body lines		
+					var polyline = L.polyline(currentClient.locations, {
+						color: '#ef4023',
+						weight: 16,
+						opacity: .75,
+						fillOpacity: 1,
+						clickable: false
+					});
+			
+					var polylineThin = L.polyline(currentClient.locations, {
+						color: 'white',
+						weight: 1,
+						opacity: 1,
+						fillOpacity: 1,
+						clickable: false
+					});
+			
+					// add lines to layer
+					playerVisual
+						.addLayer(polyline)
+						.addLayer(polylineThin);
+			
+					// draw junktion dots
+					for (var i = 0, len = currentClient.locations.length; i < len; i++) {
+						playerVisual.addLayer(L.circle(currentClient.locations[i], 1, snakeDotStyle));
+					}
+				}
+				else {
+					var circle = L.circleMarker(currentClient.locations[0], {
+						color: '#ef4023',
+						radius: 8,
+						stroke: false,
+						opacity: .75,
+						fillOpacity: 1,
+						clickable: false
+					});
 					
-						// DRAW YOURSELF
-						if (currentClient.locations.length > 1) {
-							// draw body lines		
-							var polyline = L.polyline(currentClient.locations, {
-								color: '#ef4023',
-								weight: 16,
-								opacity: .75,
-								fillOpacity: 1,
-								clickable: false
-							});
-					
-							var polylineThin = L.polyline(currentClient.locations, {
-								color: 'white',
-								weight: 1,
-								opacity: 1,
-								fillOpacity: 1,
-								clickable: false
-							});
-					
-							// add lines to layer
-							playerVisual
-								.addLayer(polyline)
-								.addLayer(polylineThin);
-					
-							// draw junktion dots
-							for (var i = 0, len = currentClient.locations.length; i < len; i++) {
-								playerVisual.addLayer(L.circle(currentClient.locations[i], 1, snakeDotStyle));
-							}
-						}
-						else {
-							var circle = L.circleMarker(currentClient.locations[0], {
-								color: '#ef4023',
+					playerVisual
+						.addLayer(circle);
+				}
+		
+				// add to map
+				playerVisual
+					.addTo(map);
+		
+				// center map to last position of the player
+				map.panTo(clientsData[client.selfId()].locations[clientsData[client.selfId()].locations.length - 1]);
+			
+			}
+			else {
+			
+				// DRAW ENEMIES
+				if (currentClient.locations.length > 1) {
+					// draw body lines		
+					var polyline = L.polyline(currentClient.locations, {
+						color: 'cyan',
+						weight: 16,
+						opacity: .75,
+						fillOpacity: 1,
+						clickable: false
+					});
+			
+					var polylineThin = L.polyline(currentClient.locations, {
+						color: 'white',
+						weight: 1,
+						opacity: 1,
+						fillOpacity: 1,
+						clickable: false
+					});
+			
+					// add lines to layer
+					othersVisual
+						.addLayer(polyline)
+						.addLayer(polylineThin);
+			
+					// draw junktion dots
+					for (var i = 0, len = currentClient.locations.length; i < len; i++) {
+						playerVisual.addLayer(L.circle(currentClient.locations[i], 1, snakeDotStyle));
+					}
+				}
+				else {
+					othersVisual
+						.addLayer(
+							L.circleMarker(currentClient.locations[0], {
+								color: 'cyan',
 								radius: 8,
 								stroke: false,
 								opacity: .75,
 								fillOpacity: 1,
 								clickable: false
-							});
-							
-							playerVisual
-								.addLayer(circle);
-						}
-				
-						// add to map
-						playerVisual
-							.addTo(map);
-				
-						// center map to last position of the player
-						map.panTo(clientsData[client.selfId()].locations[clientsData[client.selfId()].locations.length - 1]);
-					
-					}
-					else {
-					
-						// DRAW ENEMIES
-						if (currentClient.locations.length > 1) {
-							// draw body lines		
-							var polyline = L.polyline(currentClient.locations, {
-								color: 'cyan',
-								weight: 16,
-								opacity: .75,
-								fillOpacity: 1,
-								clickable: false
-							});
-					
-							var polylineThin = L.polyline(currentClient.locations, {
-								color: 'white',
-								weight: 1,
-								opacity: 1,
-								fillOpacity: 1,
-								clickable: false
-							});
-					
-							// add lines to layer
-							othersVisual
-								.addLayer(polyline)
-								.addLayer(polylineThin);
-					
-							// draw junktion dots
-							for (var i = 0, len = currentClient.locations.length; i < len; i++) {
-								playerVisual.addLayer(L.circle(currentClient.locations[i], 1, snakeDotStyle));
-							}
-						}
-						else {
-							othersVisual
-								.addLayer(
-									L.circleMarker(currentClient.locations[0], {
-										color: 'cyan',
-										radius: 8,
-										stroke: false,
-										opacity: .75,
-										fillOpacity: 1,
-										clickable: false
-									})
-								);
-						}
-				
-						// add to map
-						othersVisual
-							.addTo(map);
-					}
-
-				})(clientsData[property]);
+							})
+						);
+				}
+		
+				// add to map
+				othersVisual
+					.addTo(map);
 			}
-		}
+		});
 	};
 
 	var drawTreats = function(treats) {

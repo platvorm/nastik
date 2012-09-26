@@ -40,6 +40,15 @@ httpServer.on('request', httpRequestHandler);
 var clientsData = {};
 var treatsData = [];
 
+var intersect = require(__dirname + '/intersect.js');
+
+var _ = require('underscore');
+
+// game = {
+	
+// };
+var game = {};
+
 // helper functions
 var getRandomNumberBetween = function(lo, hi) {
 	return (lo + Math.random() * (hi - lo));
@@ -59,12 +68,9 @@ var getGameSite = function() {
 		},
 		'linda': {
 			top: 59.44345,
-			bottom: 59.44265,	// 80
-			left: 24.73060,
-			right: 24.73220,	// 160
-			lat_center: 59.443283,
-			lon_center: 24.731743,
-			diameter: 80
+			bottom: 59.44265,
+			left: 24.7306,
+			right: 24.7322
 		},
 		'rävala': {
 			top: 59.43485,
@@ -219,7 +225,7 @@ var handlers = {
 */
 		
 		clientsData[client.id].locations = data.locations;
-		
+
 		publishToAll({
 			command: 'client.locations.updated',
 			data: {
@@ -227,6 +233,38 @@ var handlers = {
 				locations: data.locations
 			}
 		}, client);
+		
+		if (clientsData[client.id].locations.length > 1) {
+			var myLastSegment = _.last(clientsData[client.id].locations);
+			var mySecondLastSegment = clientsData[client.id].locations[clientsData[client.id].locations.length - 2];
+			
+			var myLastLine = new intersect.Line({ x: myLastsegment[0], y: myLastsegment[1] }, { x: mySecondLastSegment[0], y: mySecondLastSegment[1] });
+			
+			_.each(clientsData[client.id], function(clientData) {
+				if (!clientData.locations) return;
+				
+				if (clientData.locations.length > 1) {
+
+					var lastSegment = _.last(clientsData[client.id].locations);
+					var secondLastSegment = clientsData[client.id].locations[clientsData[client.id].locations.length - 2];
+					
+					var lastLine = new intersect.Line({ x: lastsegment[0], y: lastsegment[1] }, { x: secondLastSegment[0], y: secondLastSegment[1] });
+					
+					if (intersect.checkIntersection(lastLine, myLastLine)) {
+						// BOOM! We have a collision!!!!1
+						publishToAll({
+							command: 'clients.collided',
+							data: {
+								collidingClient: client.id,
+								collidedIntoClient: clientData.id
+							}
+						}, client);
+					}
+					
+				}
+			});
+		}
+		
 	},
 	'update.level': function(client, data) {
 		console.log('update.level');
