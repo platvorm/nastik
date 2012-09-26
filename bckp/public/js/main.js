@@ -1,6 +1,6 @@
 $(function() {
 
-	var appName = 'nastik alfa';
+	var appName = 'nastik (alfa)';
 
 	document.title = appName;
 
@@ -107,11 +107,8 @@ $(function() {
 	var clientsData = {};
 	
 	var connectedClientsContainer = $('<div>')
-		.addClass('connected-clients')
+		.addClass('connected-clients-container')
 		.appendTo('body');
-
-	var connectedClientsContainerHeader = $('<h1>')
-		.text('Connected users');
 
 	var connectedUsersCounter = $('<span>')
 		.addClass('connected-users-counter')
@@ -141,7 +138,6 @@ $(function() {
 		client.send('get.treats', {});
 		
 		globalLoadingElement.detach();
-		connectedClientsContainerHeader.appendTo(connectedClientsContainer);
 	};
 
 	var onDisconnect = function() {
@@ -153,17 +149,12 @@ $(function() {
 	};
 	
 	var constructClientNameElement = function(data) {
-		if (!connectedClientsElements[data.id]) {
-			connectedClientsElements[data.id] = $('<div>')
-				.appendTo(connectedClientsContainer)
-				.text((!data.name ? data.id : data.name) + (data.id == client.selfId() ? ' (you)' : ''))
-				.addClass('client-name' + (data.id == client.selfId() ? ' you' : ''));
-		}
-		else {
-			connectedClientsElements[data.id]
-				.text((!data.name ? data.id : data.name) + (data.id == client.selfId() ? ' (you)' : ''))
-				.addClass('client-name' + (data.id == client.selfId() ? ' you' : ''));
-		}
+	
+		connectedClientsElements[data.id] = $('<div>')
+			.text((!data.name ? data.id : data.name) + (data.id == client.selfId() ? ' (you)' : ''))
+			.addClass('client-name' + (data.id == client.selfId() ? ' you' : ''));
+		
+		return connectedClientsElements[data.id];
 	};
 
 	// handlers
@@ -200,6 +191,8 @@ $(function() {
 			if (connectedClientsElements[data.id]) {
 				constructClientNameElement(data);
 			}
+			
+			draw();
 		},
 		'client.level.updated': function(data) {
 			if (!clientsData[data.id]) return false;
@@ -213,17 +206,14 @@ $(function() {
 			draw();
 		},
 		'treats.updated': function(data) {
-			if (!data.treatsData) return false;			
+			if (!data.treatsData) return false;
 			
 			treatsData = data.treatsData;
-			
-			console.log("!!!3");
-			console.log(treatsData);
 			
 			draw();
 		},
 		'current.game.site': function(data) {
-			currentGameSite = data;
+			currentGameSite = data.site;
 		}
 	};
 	
@@ -273,10 +263,20 @@ $(function() {
 		return currentGameSite;
 	}
 	
-	var dot_radius = canvas.width / 29.6;
+	var dot_radius = canvas.width / 29.6 / 2;
 
 	
 	// GPS SECTION
+	
+	var toPoint = function(lat, lon, map_width, map_height) {
+	    var y = ((-1 * lat) + 90) * (map_height / 180);
+	    var x = (lon + 180) * (map_width / 360);
+	    
+	    return {
+	    	x: x,
+	    	y: y
+	    };
+	}
 		
 	var distanceBetweenPoints = function(lat1_temp, lng1_temp, lat2_temp, lng2_temp) {
 		var lat1 = parseFloat(lat1_temp),
@@ -306,35 +306,31 @@ $(function() {
 		
 		gpswatch = navigator.geolocation.watchPosition(gpsNewPosition, gpsError, {
 			maximumAge: 0,
-			timeout: 10000,
+			timeout: 30000,
 			enableHighAccuracy: true
 		});
 		
 		console.log('gpswatch started');
-		
 	};
 	
 	var gpsNewPosition = function(position) {
 		
-		var lat = parseFloat(position.coords.latitude.toFixed(5)),
-			lng = parseFloat(position.coords.longitude.toFixed(5));
-		
-		console.log("location" + lat + ", " + lng);
+		var lat = parseFloat(position.coords.latitude.toFixed(6)),
+			lng = parseFloat(position.coords.longitude.toFixed(6));
 		
 		// if (typeof clientsData[client.selfId()].locations === 'undefined') clientsData[client.selfId()].locations = [];
+
+		if (typeof clientsData[client.selfId()] === 'undefined') {
+			clientsData[client.selfId()] = {};
+		}
 		
 		if (typeof clientsData[client.selfId()].locations === 'undefined') {
-			clientsData[client.selfId()] = {
-				'locations': []
-			};
+			clientsData[client.selfId()].locations = [];
 		}
 		
    		var locations = clientsData[client.selfId()].locations;
    		
-   		console.log("new position: " + lat + ", " + lng);
-		console.log("locations: " + locations);
-		console.log("locations: " + clientsData[client.selfId()].locations);
-		console.log("locations.length: " + locations.length);
+   		console.log("self location : " + lat + ", " + lng);
 		
 		if (locations.length > 0) {
 			var last_location = locations[locations.length - 1];
@@ -343,7 +339,6 @@ $(function() {
 			console.log("distance from previous: " + distance);
 			
 			if (distance >= dot_radius * 2) {
-			// if (distance) {
 				locations.push({
 					'lat': lat,
 					'lng': lng
@@ -366,65 +361,121 @@ $(function() {
 
 	var gpsError = function(error) {
 		if (error.code==1) {
-			alert("User denied geolocation.");
+			console.log("User denied geolocation.");
 		}
 		else if (error.code==2) {
-			alert("Position unavailable.");
+			console.log("Position unavailable.");
 		}
 		else if (error.code==3) {
-			alert("Timeout expired.");
+			console.log("Timeout expired.");
 		}
 		else {
-			alert("ERROR:"+ error.message);
+			console.log("ERROR:"+ error.message);
 		}
 	};
 		
-	var draw = function() {		
-		console.log("draw");
-
-		var map_range = function(value, low1, high1, low2, high2) {
-    		return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
-		};
-		
-		// CLS
+	var draw = function() {
+	
+		// clear canvas
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+		// oige map range
+		var map_range = function(value, from_start, from_end, to_start, to_end) {
+			return to_start + (to_end - to_start) * (value - from_start) / (from_end - from_start);
+		};
+		
+		var norm = function(value, start, stop) {
+			return (value - start) / (stop - start);
+		};
+
+				
 		// these are treats
 		if (treatsData) {
-			console.log('draw treats:');
-			console.log(treatsData);
-					
 			for (i in treatsData) {
-				console.log("here! " + treatsData[i]);
 				
-				var xpos = map_range(treatsData[i].lng, getGameSite().left, getGameSite().right, canvas.width, 0);
-				var ypos = map_range(treatsData[i].lat, getGameSite().bottom, getGameSite().top, canvas.height, 0);
+				// var xpos = map_range(treatsData[i].lng, getGameSite().left, getGameSite().right, canvas.width, 0);
+				// var ypos = map_range(treatsData[i].lat, getGameSite().bottom, getGameSite().top, canvas.height, 0);
+				
+				var xpos_norm = norm(treatsData[i].lng, getGameSite().left, getGameSite().right);
+				var ypos_norm = norm(treatsData[i].lat, getGameSite().bottom, getGameSite().top);
+				
+				var xpos = canvas.width * xpos_norm;
+				var ypos = canvas.height - (canvas.height * ypos_norm);
 				
 				console.log("treats pos: " + xpos + " " + ypos);
 			
 				ctx.fillStyle = "#fff";
-				ctx.fillRect(xpos - dot_radius, ypos - dot_radius, dot_radius * 2, dot_radius * 2);
-
+				ctx.fillRect(xpos - dot_radius, ypos - dot_radius, dot_radius * 2 - 4, dot_radius * 2 - 4);
 			}
+			console.log('treats rendered', treatsData);
 		}
 		
-		
 		var drawSnake = function(clientToDraw, colorToDraw) {
+		
+			var toPoint_p4j = function(lat, lon) {
+				return Proj4js.transform(new Proj4js.Proj('WGS84'), new Proj4js.Proj('EPSG:3785'), new Proj4js.Point(lat, lon));
+			};
+
 			for (var i = 1; i <= clientToDraw.level; i++) {
+			
+				var pointOnWorld = toPoint_p4j(clientToDraw.locations[clientToDraw.locations.length - i].lat, clientToDraw.locations[clientToDraw.locations.length - i].lng);
+								
+				var gameSiteTopLeft = toPoint_p4j(getGameSite().top, getGameSite().left);
+				var gameSiteBottomRight = toPoint_p4j(getGameSite().bottom, getGameSite().right);
 				
-				var o_lat = clientToDraw.locations[clientToDraw.locations.length - i].lat;
-				var o_lng = clientToDraw.locations[clientToDraw.locations.length - i].lng;
+				var point = {};
 				
-				var xpos = map_range(o_lng, getGameSite().left, getGameSite().right, canvas.width, 0);
-				var ypos = map_range(o_lat, getGameSite().bottom, getGameSite().top, canvas.height, 0);
+				// (value, from_start, from_end, to_start, to_end)
+				point.x = map_range(pointOnWorld.x, gameSiteTopLeft.x, gameSiteBottomRight.x, 0, canvas.width);
+				point.y = map_range(pointOnWorld.y, gameSiteTopLeft.y, gameSiteBottomRight.y, 0, canvas.height);
 				
-				console.log('client ' + clientToDraw.id + ' position: ' + xpos + ", " + ypos);
+				// console.log("point drawn: " + + clientToDraw.id + ": " + pointOnWorld.x + ", " + pointOnWorld.y + " / " + point.x + ", " + point.y);
 				
+				// visualize								
 				ctx.fillStyle = colorToDraw;
 				ctx.beginPath();
-				ctx.arc(xpos, ypos, dot_radius, (Math.PI / 180) * 0, (Math.PI / 180) * 360, true);  
+				ctx.arc(point.x, point.y, dot_radius, (Math.PI / 180) * 0, (Math.PI / 180) * 360, true);  
 				ctx.fill();
+				
+				ctx.fillStyle = '#fff';
+				ctx.fillText((!clientToDraw.name ? clientToDraw.id : clientToDraw.name), point.x, point.y);
+				
+				console.log('client ' + clientToDraw.id + ' position rendered: ' + point.x + ", " + point.y);
 			}
+		
+/*
+			for (var i = 1; i <= clientToDraw.level; i++) {
+			
+				// toPoint(lat, lon, map_width, map_height);
+				var pointOnWorld = toPoint(clientToDraw.locations[clientToDraw.locations.length - i].lat, clientToDraw.locations[clientToDraw.locations.length - i].lng, 100, 100);
+				
+				// var gameSiteWidth = getGameSite().right - getGameSite().left;
+				// var gameSiteHeight = getGameSite().top - getGameSite().bottom;
+				
+				var gameSiteTopLeft = toPoint(getGameSite().top, getGameSite().left, 100, 100);
+				var gameSiteBottomRight = toPoint(getGameSite().bottom, getGameSite().right, 100, 100);
+				
+				var point = {};
+				
+				// (value, from_start, from_end, to_start, to_end)
+				point.x = map_range(pointOnWorld.x, gameSiteTopLeft.x, gameSiteBottomRight.x, 0, canvas.width);
+				point.y = map_range(pointOnWorld.y, gameSiteTopLeft.y, gameSiteBottomRight.y, 0, canvas.height);
+				
+				// console.log("point drawn: " + + clientToDraw.id + ": " + pointOnWorld.x + ", " + pointOnWorld.y + " / " + point.x + ", " + point.y);
+				
+				// visualize								
+				ctx.fillStyle = colorToDraw;
+				ctx.beginPath();
+				ctx.arc(point.x, point.y, dot_radius, (Math.PI / 180) * 0, (Math.PI / 180) * 360, true);  
+				ctx.fill();
+				
+				ctx.fillStyle = '#fff';
+				ctx.fillText((!clientToDraw.name ? clientToDraw.id : clientToDraw.name), point.x, point.y);
+				
+				console.log('client ' + clientToDraw.id + ' position rendered: ' + point.x + ", " + point.y);
+			}
+*/
+		
 		};
 		
 		for (property in clientsData) {

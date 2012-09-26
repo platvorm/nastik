@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Nastik Visual</title>
+		
+		<link rel="stylesheet" href="css/screen.css">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/leaflet.css">
+		
+		<script src="js/jquery-1.7.2.min.js"></script>
+		<script src="js/leaflet-src.js"></script>
+		
+		<meta http-equiv="X-UA-Compatible" content="chrome=1; IE=EmulateIE7">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		
+		<style>
+			body {
+				padding: 0;
+				margin: 0;
+			}
+
+			html, body, #map {
+				height: 100%;
+			}
+		</style>
+
+	</head>
+	<body>
+
+		<div id="map"></div>
+		
+		<script>
+			var map = L.map('map', {
+				center: [59.433769, 24.744315],
+				zoom: 18,
+				minZoom: 18,
+				minZoom: 18,
+				zoomControl: false,
+				attributionControl: false
+			});
+
+			L.tileLayer('http://{s}.tile.cloudmade.com/{apiKey}/{styleId}/256/{z}/{x}/{y}.png', {
+				apiKey: '1ab3b2f5009e456c985183202cc675e0',
+				styleId: 73324,
+				attribution: 'Map data &copy;',
+				minZoom: 18,
+				maxZoom: 18
+			}).addTo(map);
+
+			var playerScore = 4;
+
+			var playerLocations = [
+				[59.4337, 24.7443],
+				[59.4338, 24.7444],
+				[59.4336, 24.7446],
+				[59.4336, 24.7446],
+				[59.4336, 24.7446]
+			];
+
+			var updatePlayerLocations = function(locations, score) {
+				while (locations.length > score) {
+					locations.shift();
+				}
+
+				return locations;
+			};
+
+			var playerVisual = L.layerGroup();
+
+			var playerDotStyle = {
+				color: 'white',
+				stroke: false,
+				opacity: 1,
+				fillOpacity: 1,
+				clickable: false
+			};
+
+			var drawPlayer = function(locations) {
+				// clear player visual
+				playerVisual.clearLayers();
+				
+				// draw snakes "body" lines		
+				var polyline = L.polyline(locations, {
+					color: 'cyan',
+					weight: 16,
+					opacity: .75,
+					fillOpacity: 1,
+					clickable: false
+				});
+
+				var polylineThin = L.polyline(locations, {
+					color: 'white',
+					weight: 1,
+					opacity: 1,
+					fillOpacity: 1,
+					clickable: false
+				});
+
+				// add lines to layer
+				playerVisual
+					.addLayer(polyline)
+					.addLayer(polylineThin);
+
+				// draw junktion dots
+				for (var i = 0, len = locations.length; i < len; i++) {
+					playerVisual.addLayer(L.circle(locations[i], 1, playerDotStyle));
+				}
+
+				// add to map
+				playerVisual
+					.addTo(map);
+
+				// center map to last position of the player
+				map.panTo(locations[locations.length - 1]);
+			};
+			
+			setInterval(function() {
+				playerLocations.push([59.4337 + Math.random() / 10000, 24.7443 + Math.random() / 5000]);
+				playerLocations.shift();
+
+				playerLocations = updatePlayerLocations(playerLocations, playerScore);
+				drawPlayer(playerLocations);
+			}, 3000);
+
+		</script>
+	</body>
+</html>

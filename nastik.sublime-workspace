@@ -1,0 +1,423 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"re",
+				"redirect"
+			],
+			[
+				"res",
+				"result"
+			],
+			[
+				"mar",
+				"margin-bottom"
+			],
+			[
+				"w",
+				"white-space"
+			],
+			[
+				"l",
+				"line-height"
+			],
+			[
+				"di",
+				"display"
+			],
+			[
+				"bo",
+				"border-bottom"
+			],
+			[
+				"fo",
+				"font-weight"
+			],
+			[
+				"te",
+				"text-decoration"
+			],
+			[
+				"cl",
+				"clear"
+			],
+			[
+				"i",
+				"italic"
+			],
+			[
+				"in",
+				"inline-table"
+			],
+			[
+				"publis",
+				"publish_date"
+			],
+			[
+				"langu",
+				"languages"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "index.js",
+			"settings":
+			{
+				"buffer_size": 7477,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/js/main.js",
+			"settings":
+			{
+				"buffer_size": 13553,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/index.html",
+			"settings":
+			{
+				"buffer_size": 873,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 67.0,
+		"selected_items":
+		[
+			[
+				"json",
+				"Pretty JSON: Reformat (Pretty Print) JSON"
+			],
+			[
+				"pret",
+				"Pretty JSON: Reformat (Pretty Print) JSON"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"sidebar",
+				"View: Toggle Open Files in Side Bar"
+			],
+			[
+				"side",
+				"View: Toggle Open Files in Side Bar"
+			],
+			[
+				"remo",
+				"Package Control: Remove Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Package Control: Discover Packages"
+			],
+			[
+				"pac",
+				"Package Control: Install Package"
+			],
+			[
+				"en",
+				"Package Control: Enable Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/klm/Desktop/subpage2.php",
+		"/Users/klm/code/jorid.js/views/signup.html",
+		"/Users/klm/code/jorid.js/views/book.html",
+		"/Users/klm/code/jorid.js/routes/index.js",
+		"/Users/klm/code/jorid.js/models/books.js",
+		"/Users/klm/code/jorid.js/routes/stacks.js",
+		"/Users/klm/code/jorid.js/routes/books.js",
+		"/Users/klm/code/jorid.js/views/stack.html",
+		"/Users/klm/code/jorid.js/models/users.js",
+		"/Users/klm/code/jorid.js/controllers/book-translator.js",
+		"/Users/klm/code/jorid.js/db.js",
+		"/Users/klm/code/jorid.js/routes/users.js",
+		"/Users/klm/code/jorid.js/views/login.html",
+		"/Users/klm/code/jorid.js/config/database.json",
+		"/Users/klm/code/jorid.js/notes/colorshema.css",
+		"/Users/klm/code/jorid.js/views/browse.html",
+		"/Users/klm/code/jorid.js/views/index.html",
+		"/Users/klm/code/jorid.js/models/books_handler.js",
+		"/Users/klm/code/jorid.js/controllers/index.js",
+		"/Users/klm/code/jorid.js/models/index.js",
+		"/Users/klm/code/jorid.js/views/header.html",
+		"/Users/klm/code/jorid.js/notes/db schema",
+		"/Users/klm/code/jorid.js/notes/open library call",
+		"/Users/klm/code/jorid.js/views/intro.html",
+		"/Users/klm/code/jorid.js/public/stylesheets/style.css",
+		"/Users/klm/code/jorid.js/views/oneBook.html",
+		"/Users/klm/code/jorid.js/views/allBooks.html",
+		"/Users/klm/Library/Application Support/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/Users/klm/code/jorid.js/views/footer.html",
+		"/Users/klm/code/jorid.js/notes/isbncheck",
+		"/Users/klm/code/jorid.js/notes/db schema librarything",
+		"/Users/klm/code/jorid/jorid/models/books_m.py",
+		"/Users/klm/code/jorid/jorid/schema.sql",
+		"/Users/klm/code/jorid/jorid/todo.html",
+		"/Users/klm/code/jorid.js/models/app.js",
+		"/Users/klm/code/jorid.js/engine/translator.js",
+		"/Users/klm/Downloads/isbnjs-1.0.0/isbn-groups.js",
+		"/Users/klm/Downloads/isbnjs-1.0.0/isbn.js",
+		"/Users/klm/code/jorid.js/node_modules/isbn/samples/isbn-parser.html",
+		"/Users/klm/Library/Application Support/Sublime Text 2/Packages/Pretty JSON/Pretty JSON.sublime-settings",
+		"/Users/klm/code/jorid.js/views/index.jade",
+		"/Users/klm/code/jorid.js/views/layout.jade",
+		"/Users/klm/code/joridjs/app.js",
+		"/Users/klm/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/Users/klm/Library/Application Support/Sublime Text 2/Packages/SideBarEnhancements/Side Bar.sublime-settings"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"bcrypt",
+			"getTimestamp",
+			"bson",
+			"BSON",
+			"modelBooks",
+			"books",
+			"modelBooks",
+			"jorid",
+			"model",
+			"exports",
+			"oneBook",
+			"allBooks",
+			"tag",
+			"<%",
+			"%>",
+			"<%",
+			"request",
+			"isbnjs",
+			"books",
+			"title",
+			"isbn",
+			"addProperty",
+			"from",
+			"'",
+			"bookFrom",
+			", ",
+			"publisher"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"Books",
+			"books",
+			"module.exports",
+			"book",
+			"{{",
+			"}}",
+			"{{",
+			"isbnParser",
+			"book",
+			"data",
+			"\"",
+			"from",
+			", \n"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "index.js",
+					"settings":
+					{
+						"buffer_size": 7477,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "public/js/main.js",
+					"settings":
+					{
+						"buffer_size": 13553,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "public/index.html",
+					"settings":
+					{
+						"buffer_size": 873,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 100.0
+	},
+	"replace":
+	{
+		"height": 64.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": false,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 179.0,
+	"status_bar_visible": true
+}

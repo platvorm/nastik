@@ -28,7 +28,7 @@ var log = function() {
 	if (env == 'development') {
 		console.log.apply(this, arguments);
 	}
-}
+};
 
 httpServer.on('upgrade', function (req, socket, head) {
 	server.handleUpgrade(req, socket, head);
@@ -36,36 +36,19 @@ httpServer.on('upgrade', function (req, socket, head) {
 
 httpServer.on('request', httpRequestHandler);
 
-var clientsData = {
-/*
-	253673624562: {
-		id: 253673624562,
-		name: 'Mike',
-		level: 1,
-        locations: [
-            {
-                'lat': 59.12113,
-                'lng': 27.01223,
-            },
-            {
-                'lat': 59.12113,
-                'lng': 27.01223,
-            },
-	    ]
-	}
-*/
-};
+// make main data containers
+var clientsData = {};
+var treatsData = [];
 
+// helper functions
 var getRandomNumberBetween = function(lo, hi) {
 	return (lo + Math.random() * (hi - lo));
 };
 
-var treatsData = [];
-
-
+// game setup
 var getGameSite = function() {
 	
-	var currentGameSite = 'rävala';
+	var currentGameSite = 'linda';
 	
 	var gameSites = {
 		'vabaduse': {
@@ -76,47 +59,41 @@ var getGameSite = function() {
 		},
 		'linda': {
 			top: 59.44345,
-			bottom: 59.44265,
+			bottom: 59.44265,	// 80
 			left: 24.73060,
-			right: 24.73220
+			right: 24.73220,	// 160
+			lat_center: 59.443283,
+			lon_center: 24.731743,
+			diameter: 80
 		},
 		'rävala': {
-			top: 59.43463,
-			bottom: 59.43383,
-			left: 24.75435,
-			right: 24.75515
-		},
-		'rävala2': {
-			top: 59.43445,
-			bottom: 59.43335,
-			left: 24.75350,
-			right: 24.75430
+			top: 59.43485,
+			bottom: 59.43325,
+			left: 24.75250,
+			right: 24.75570
 		}
 	};
 	
 	return gameSites[currentGameSite];
-}
+};
 
 
 var generateTreats = function() {
 	var numberOfTreats = 3;
 	
 	while (treatsData.length < numberOfTreats) {
-		treatsData.push({
-			'lat': getRandomNumberBetween(getGameSite().bottom, getGameSite().top),
-			'lng': getRandomNumberBetween(getGameSite().left, getGameSite().right)
-		});
+		treatsData.push([
+			getRandomNumberBetween(getGameSite().bottom, getGameSite().top),
+			getRandomNumberBetween(getGameSite().left, getGameSite().right)
+		]);
 	}
-	
-	console.log("treatsData:");
-	console.log(treatsData);
 };
 
 generateTreats();
 
 
-
 log('Server started. Now point your browser to http://localhost:3000/');
+log('version 001');
 
 server.on('connection', function (client) {
 
@@ -211,6 +188,8 @@ var handlers = {
 	'update.locations': function(client, data) {
 		if (!data.locations) return false;
 		
+/*
+		// id, lat, lng
 		if (areCollided(client.id, data.locations[data.locations.length - 1].lat, data.locations[data.locations.length - 1].lng) == 1) {
 			console.log('COLLISION!');
 			
@@ -237,6 +216,7 @@ var handlers = {
 				}
 			}, client);
 		}
+*/
 		
 		clientsData[client.id].locations = data.locations;
 		
@@ -274,6 +254,7 @@ var handlers = {
 	}
 };
 
+/*
 var distanceBetweenPoints = function(lat1_temp, lng1_temp, lat2_temp, lng2_temp) {
 	var lat1 = parseFloat(lat1_temp),
 		lng1 = parseFloat(lng1_temp),
@@ -288,22 +269,33 @@ var distanceBetweenPoints = function(lat1_temp, lng1_temp, lat2_temp, lng2_temp)
 	var d = R * c; 								// Distance in m
 	return d;
 };
+*/
 
+/*
 var areCollided = function(id, lat, lng) {
 	var others = clientsData;
 	
 	for (property in others) {
 		if (others.hasOwnProperty(property)) {
 			if (others[property].id === id) {
+
 			}
 			else {
-				for (var i = 1; i <= others[property].level; i++) {
-					if (others[property].hasOwnProperty('locations')) {
-						var other_lat = others[property].locations[others[property].locations.length - i].lat;
-						var other_lng = others[property].locations[others[property].locations.length - i].lng;
-					
-						if (distanceBetweenPoints(lat, lng, other_lat, other_lng) < 3 * 2) {
-							return 0;
+				if (others[property].locations > others[property].level) {
+					for (var i = 1; i <= others[property].level; i++) {
+						console.log("areCollided : " + i + "i, level: " + others[property].level);
+						if (others[property].hasOwnProperty('locations')) {
+							var locations = others[property].locations;
+						
+							// var other_lat = others[property].locations[others[property].locations.length - i].lat;
+							// var other_lng = others[property].locations[others[property].locations.length - i].lng;
+							
+							var other_lat = locations[locations.length - i].lat;
+							var other_lng = locations[locations.length - i].lng;
+						
+							if (distanceBetweenPoints(lat, lng, other_lat, other_lng) < 3 * 2) {
+								return 0;
+							}
 						}
 					}
 				}
@@ -320,19 +312,12 @@ var areCollided = function(id, lat, lng) {
 			}
 			
 			// remove
-			treatsData.splice(i, 1)
+			treatsData.splice(i, 1);
 			
 			// gen new
 			generateTreats();
 			
 		}
-	}
-	
+	}	
 };
-
-	
-		}
-	}
-	
-};
-
+*/

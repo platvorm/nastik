@@ -7,6 +7,8 @@ html, body {
 body {
 	font-size: 12px;
 	overflow: hidden;
+	
+	font-family: "Lucida Grande", Helvetica, Arial, "Courier New";
 }
 
 .global-loader {
@@ -24,19 +26,32 @@ body {
 	top: 0;
 	right: 0;
 	left: 0;
-	height: 46px;
-	background: #312019;
-	border-bottom: 2px dashed #fff;
+	height: 24px;
+	
+	padding-left: 10px;
+	
+	background: #cad1c1;
+	background: #514269;	/* lilla */
+	background: #B1A992;
+	background: rgba(0, 0, 0, .25);	
+	border-bottom: 1px solid #000;
 	z-index: 100;
 	color: #fff;
-	font-size: 22px;
+	font-size: 14px;
+	
+	text-align: left;
+	
+	z-index: 1000;
 }
+
 	.header h1 {
-		padding: 10px;
+		padding-top: 3px;
 		font-weight: normal;
 	}
 
 .name-form {
+	display: none;
+
 	position: fixed;
 	top: 10px;
 	right: 10px;
@@ -49,25 +64,13 @@ body {
 	}
 
 	
-.connected-clients {
-	display: none;
-
+.connected-clients-container {
 	position: fixed;
-	top: 60px;
-	right: 10px;
-	width: 20%;
-	min-width: 170px;
-	height: 200px;
-	background: #fff;
+	top: 24px;
+	right: 0px;
+	left: 0px;
+	bottom: 0px;
 	z-index: 200;
-
-	border-radius: 4px;
-	text-overflow: ellipsis;
-	overflow: hidden;
-	overflow-y: auto;
-	white-space: nowrap;
-
-	box-shadow: 0px 10px 10px rgba(0,0,0,.2);
 }
 	
 	.connected-clients h1 {
@@ -76,11 +79,9 @@ body {
 	}
 
 	.connected-users-counter {
-		background: #666;
-		color: #fff;
-		text-shadow: none;
-		border-radius: 10px;
-		padding: 1px 4px;
+		float: right;
+	
+		padding: 2px 4px;
 		display: inline-block;
 		font-size: 11px;
 		font-weight: normal;
@@ -88,11 +89,8 @@ body {
 	}
 
 	.connected-clients .client-name {
-		padding: 4px 10px;
-	}
-
-	.connected-clients .client-name:nth-child(even) {
-		background: rgba(200,220,255,.2);
+		position: absolute;
+		color: #fff;
 	}
 
 .app-container {
@@ -121,15 +119,19 @@ body {
 
 .map-wrapper {
 	background: #000;
+	z-index: 100;
 }
 
 #map {
 	position: fixed;
 	background: #312019;
+	background: #000;
 	
-	top: 48px;
+	top: 0;
 	left: 0;
 	right: 0;
+
+	height: 100%;
 	
 	z-index: 500;
 }
